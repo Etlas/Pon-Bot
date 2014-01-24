@@ -42,7 +42,7 @@ while True:
 	if ((len(c.markets[mrk].my_orders) == 0):
 		print "No orders! Looking to trade!"
 		if (prevTrade == "sell"):
-			if (hist < buyOrd):
+			if (math.fabs(hist - buyOrd) > 10):
 				buy(hist)
 				prevTrade = "buy"
 				prevPrice = hist
