@@ -66,16 +66,26 @@ def sell(price):
         with open("log.txt", "a") as file:
                 file.write("Sold " + str(dogBal) + " amount of Dogecoin for " + str(price))
                 
-
-c.update_balance()
-c.update_my_open_orders(c.markets[mrk])
+try:
+	c.update_balance()
+	c.update_my_open_orders(c.markets[mrk])
+	ords = len(c.markets[mrk].my_orders)
+except KeyError:
+	ords = 0
 b = c.get_bank()
-if (b.coins["BTC"] > 0):
+try:
 	bitBal = b.coins["BTC"]
-if (b.coins["DOGE"] > 0):
-	dogBal = b.coins["DOGE"
-if (dogBal > 0 && len(c.markets[mrk].my_orders) == 0):
+except KeyError:
+	bitBal = 0
+try:
+	dogBal = b.coins["DOGE"]
+except KeyError:
+	dogBal = 0
+if ((dogBal == 0) and (ords == 0)):
 	prevTrade = "sell"
+else:
+	prevTrade = "buy"
+print("prevTrade = " + str(prevTrade) + " DogBal = " + str(dogBal) + " BitBal = " + str(bitBal))
 while True:
 	time.sleep(10)
 	tyme = datetime.datetime.now().time()
@@ -102,7 +112,7 @@ while True:
 			buy(float(hist)-0.00000002)
 			prevTrade = "buy"
 			prevPrice = float(hist)
-		if (prevTrade == "buy"):
+		else:
 			sell(float(hist)+0.00000002)
 			prevTrade = "sell"
 			prevPrice = float(hist)
