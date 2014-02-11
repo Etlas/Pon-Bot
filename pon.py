@@ -37,15 +37,18 @@ def email(type,price,doge):
 	server.starttls()
 	server.ehlo()
 	server.login('musicinsilence13@gmail.com', 'M1ss1ss1pp1')
-	server.sendmail("musicinsilence13@gmail.com", "musicinsilence13@gmail.com", content)
+	server.sendmail("musicinsilence13@gmail.com", "musicinsilence13@gmail.com", msg.as_string())
 	server.close()
 
 def buy(price):
         doge = float(bitBal) / (float(price) * float(1.002))
 	try:
 	        c.place_order(c.markets[mrk], "Buy", price, doge)
+		global pastTradeT
 	        pastTradeT = "buy"
+		global pastTradeP
 	        pastTradeP = price
+		global pastTradeD
 	        pastTradeD = doge
 		global dogBal
 		dogBal = doge
@@ -54,14 +57,19 @@ def buy(price):
 	        print("--Bought " + str(doge) + " amount of Dogecoin for " + str(price))
 	        with open("log.txt", "a") as file:
 	                file.write("Bought " +str(doge) + " amount of Dogecoin for " +str(price))
+		global prevTrade
+		prevTrade = "buy"
 	except:
 		print("buy failed")
 
 def sell(price):
 	try:
 	        c.place_order(c.markets[mrk], "Sell", price, dogBal)
+		global pastTradeT
 	        pastTradeT = "sell"
+		global pastTradeP
 	        pastTradeP = price
+		global pastTradeD
 	        pastTradeD = dogBal
 	        print("-Sold " + str(dogBal) + " amount of Dogecoin for " + str(price))
 		global bitBal
@@ -70,6 +78,8 @@ def sell(price):
 		dogBal = 0
 	        with open("log.txt", "a") as file:
 	                file.write("Sold " + str(dogBal) + " amount of Dogecoin for " + str(price))
+		global prevTrade
+		prevTrade = "sell"
 	except:
 		print("sell failed")
                 
@@ -118,17 +128,15 @@ while True:
 		hist = c.markets[mrk].history[0].price
 		buyOrd = c.markets[mrk].buy_orders[0].price
 		sellOrd = c.markets[mrk].sell_orders[0].price
-	if (len(c.markets[mrk].my_orders) == 0):
-		email(pastTradeT, pastTradeP, pastTradeD)
-		print("Latest Price: " + str(hist) + " | Buy: " + str(buyOrd) + " | Sell: " + str(sellOrd))
-		if (prevTrade == "sell"):
-			buy(float(hist)-0.00000002)
-			prevTrade = "buy"
-			prevPrice = float(hist)
-		else:
-			sell(float(hist)+0.00000002)
-			prevTrade = "sell"
-			prevPrice = float(hist)
+		if (len(c.markets[mrk].my_orders) == 0):
+			email(pastTradeT, pastTradeP, pastTradeD)
+			print("Latest Price: " + str(hist) + " | Buy: " + str(buyOrd) + " | Sell: " + str(sellOrd))
+			if (prevTrade == "sell"):
+				buy(float(hist)-0.00000002)
+				prevPrice = float(hist)
+			else:
+				sell(float(hist)+0.00000002)
+				prevPrice = float(hist)
 
 
 	
